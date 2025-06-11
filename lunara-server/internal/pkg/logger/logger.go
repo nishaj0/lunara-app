@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"github.com/nishaj0/lunara-app/lunara-server/internal/pkg/env"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -16,8 +15,8 @@ func InitLogger() *zap.Logger {
 	config.EncoderConfig.TimeKey = "timestamp"
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	
-	// Set the log level based on environment
-	logLevel := env.GetEnv("LOG_LEVEL", "info")
+	// Set the log level 
+	logLevel := "info"
 	if logLevel != "" {
 		level, err := zapcore.ParseLevel(logLevel)
 		if err == nil {
@@ -45,6 +44,11 @@ func GetLogger() *zap.Logger {
 // Info logs an info message
 func Info(message string, fields ...zapcore.Field) {
 	GetLogger().Info(message, fields...)
+}
+
+// Warn logs a warning message
+func Warn(message string, fields ...zapcore.Field) {
+	GetLogger().Warn(message, fields...)
 }
 
 // Error logs an error message
