@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/nishaj0/lunara-app/lunara-server/internal/db"
 	"github.com/nishaj0/lunara-app/lunara-server/internal/pkg/env"
@@ -27,10 +26,10 @@ func main() {
 
 	r := router.SetupRouter()
 
-	log.Printf("Server is starting at %s:%s", host, port)
+	logger.Info("Server is starting", zap.String("host", host), zap.String("port", port))
 
 	err := r.Run(fmt.Sprintf("%s:%s", host, port))
 	if err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		logger.Fatal("Failed to start server", zap.Error(err))
 	}
 }
