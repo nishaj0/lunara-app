@@ -1,0 +1,36 @@
+package handler
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/nishaj0/lunara-app/lunara-server/internal/model"
+	"github.com/nishaj0/lunara-app/lunara-server/internal/pkg/logger"
+	"github.com/nishaj0/lunara-app/lunara-server/internal/service"
+	"go.uber.org/zap"
+)
+
+func Register(c *gin.Context) {
+	var req model.RegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Warn("Invalid register request", zap.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	logger.Info("Register attempt", zap.String("email", req.Email), zap.String("username", req.Username))
+
+	user, err := service.RegisterUser(c.Request.Context(), &req)
+	if err != nil {
+		logger.Error("Failed to register user", zap.Error(err), zap.String("email", req.Email))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	logger.Info("User registered successfully", zap.String("user_id", user.ID), zap.String("email", user.Email))
+
+	c.JSON(http.StatusCreated, gin.H{
+		"id":       user.ID,
+		"username": user.Username,
+		"email":    user.Email,
+		"fullName": user.FullName,
+	})
+}

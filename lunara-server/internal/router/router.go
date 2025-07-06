@@ -24,6 +24,7 @@ func SetupRouter() *gin.Engine {
 	
 	// general routes
 	r.GET("/ping", handler.Ping)
+	r.POST("/auth/register", handler.Register)
 
 	return r
 }
