@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/nishaj0/lunara-app/lunara-server/internal/model"
+	"github.com/nishaj0/lunara-app/lunara-server/internal/pkg/jwt"
 	"github.com/nishaj0/lunara-app/lunara-server/internal/pkg/logger"
 	"github.com/nishaj0/lunara-app/lunara-server/internal/repository"
 	"go.uber.org/zap"
@@ -28,4 +30,19 @@ func RegisterUser(ctx context.Context, req *model.RegisterRequest) (*model.User,
 		return nil, err
 	}
 	return user, nil
+}
+
+func LoginUser(ctx context.Context, req *model.LoginRequest) (string, *model.User, error) {
+	user, err := repository.GetUserByEmail(ctx, req.Email)
+	if err != nil {
+		return "", nil, errors.New("invalid email or password")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		return "", nil, errors.New("invalid email or password")
+	}
+	token, err := jwt.GenerateToken(user.ID, user.Email)
+	if err != nil {
+		return "", nil, err
+	}
+	return token, user, nil
 }
