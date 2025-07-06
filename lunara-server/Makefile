@@ -1,5 +1,11 @@
 include .env
 
+# run server
+run:
+	go run ./cmd/server/main.go
+
+
+
 # for Windows only
 # Database connection string
 DB_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${DB_NAME}?sslmode=disable
