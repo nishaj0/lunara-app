@@ -1,15 +1,50 @@
 'use client';
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 
 function Page() {
+  const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await login(formData.email, formData.password);
+      // Redirect to dashboard or home page after successful login
+      router.push("/");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Login failed";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
@@ -18,7 +53,12 @@ function Page() {
           <h2 className="text-3xl font-bold">Welcome Back</h2>
           <p className="mt-2 text-sm">Please enter your details to sign in</p>
         </div>
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              {error}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email
@@ -27,6 +67,8 @@ function Page() {
               id="email"
               type="email"
               placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
               required
             />
@@ -40,6 +82,8 @@ function Page() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
                 required
               />
@@ -74,7 +118,9 @@ function Page() {
               </Link>
             </div>
           </div>
-          <Button className="w-full">Sign in</Button>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign in"}
+          </Button>
         </form>
         <div className="text-center">
           <p className="text-sm">
