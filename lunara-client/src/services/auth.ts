@@ -17,7 +17,11 @@ export const authService = {
       localStorage.setItem('token', response.data.token);
     }
     
-    return response.data;
+    // return in expected format
+    return {
+      token: response.data.token,
+      user: response.data.user
+    };
   },
 
   // Logout user

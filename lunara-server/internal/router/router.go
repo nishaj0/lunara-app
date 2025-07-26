@@ -35,10 +35,18 @@ func SetupRouter() *gin.Engine {
 	// custom logger middleware
 	r.Use(middleware.Logger())
 	
-	// general routes
+	// public routes
 	r.GET("/ping", handler.Ping)
 	r.POST("/auth/register", handler.Register)
 	r.POST("/auth/login", handler.Login)
+
+	// protected routes (require authentication)
+	protected := r.Group("/api")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		protected.GET("/profile", handler.GetProfile)
+		// Add more protected routes here as needed
+	}
 
 	return r
 }

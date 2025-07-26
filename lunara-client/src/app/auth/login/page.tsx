@@ -18,6 +18,7 @@ function Page() {
     email: "",
     password: ""
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,7 +36,7 @@ function Page() {
     setError("");
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password, rememberMe);
       // Redirect to dashboard or home page after successful login
       router.push("/");
     } catch (err) {
@@ -106,6 +107,8 @@ function Page() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-4 h-4 border rounded focus:ring"
               />
               <Label htmlFor="remember-me" className="ml-2 text-sm">

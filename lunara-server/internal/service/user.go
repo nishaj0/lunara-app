@@ -40,7 +40,7 @@ func LoginUser(ctx context.Context, req *model.LoginRequest) (string, *model.Use
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
 		return "", nil, errors.New("invalid email or password")
 	}
-	token, err := jwt.GenerateToken(user.ID, user.Email)
+	token, err := jwt.GenerateToken(user.ID, user.Email, req.RememberMe)
 	if err != nil {
 		return "", nil, err
 	}

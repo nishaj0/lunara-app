@@ -52,11 +52,17 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// set cookie expiration based on remember me
+	maxAge := 60 * 60 * 24 // 1 day default
+	if req.RememberMe {
+		maxAge = 60 * 60 * 24 * 30 // 30 days if remember me is checked
+	}
+
 	// Set JWT as a secure, HTTP-only cookie
 	c.SetCookie(
 		"token",                     // cookie name
 		token,                       // value
-		60*60*24,                    // maxAge (1 day in seconds)
+		maxAge,                      // maxAge
 		"/",                         // path
 		"",                          // domain (empty = current domain)
 		environment == "PROD",       // secure (set to true in production)
@@ -64,10 +70,12 @@ func Login(c *gin.Context) {
 	)
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":    token,
-		"id":       user.ID,
-		"username": user.Username,
-		"email":    user.Email,
-		"fullName": user.FullName,
+		"token": token,
+		"user": gin.H{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+			"fullName": user.FullName,
+		},
 	})
 }
